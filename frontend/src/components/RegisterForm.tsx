@@ -48,7 +48,7 @@ const RegisterForm: React.FC = () => {
   };
   
   return (
-    <Card className="max-w-md mx-auto my-10">
+    <Card className="max-w-sm w-full mx-auto my-10 mx-2">
       <CardHeader>
         <CardTitle className="text-2xl text-center">Create Account</CardTitle>
       </CardHeader>
