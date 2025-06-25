@@ -106,7 +106,19 @@ The API documentation is available via Swagger at http://localhost:3000/swagger 
 - **MealPlan**: Weekly or custom period meal plans
 - **MealPlanEntry**: Individual recipes scheduled for specific days/meals
 
-## Ingredient Categorization
+## Shopping List Features
+
+### Unit Normalization and Conversion
+
+The shopping list feature automatically normalizes and converts ingredient quantities for consistent measurements:
+
+- Volume units (teaspoons, tablespoons, cups, liters, etc.) are normalized to milliliters
+- Weight units (ounces, pounds, grams, kilograms, etc.) are normalized to grams
+- When combining ingredients, the system intelligently merges quantities and selects the most appropriate unit
+- Supports both English and Spanish unit names (cups/tazas, ounces/onzas, etc.)
+- Formats fractional quantities in a readable way (e.g., "1 1/2 cups" instead of "1.5 cups")
+
+### Ingredient Categorization
 
 The shopping list generation provides both a flat list of ingredients and a categorized list. Ingredients are automatically categorized based on their names into the following groups:
 

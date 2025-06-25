@@ -523,37 +523,11 @@ export const mealPlanRoutes = new Elysia({ name: 'meal-plan-routes' })
             };
           }
           
-          // Consolidate ingredients
-          const ingredientsMap = new Map();
+          // Import shopping list processing utility
+          const { processShoppingList } = await import('../utils/shopping-list-utils');
           
-          existingMealPlan.entries.forEach((entry: any) => {
-            entry.recipe.ingredients.forEach((ingredient: any) => {
-              const key = `${ingredient.name}|${ingredient.unit}`;
-              
-              if (ingredientsMap.has(key)) {
-                ingredientsMap.set(key, {
-                  ...ingredientsMap.get(key),
-                  quantity: ingredientsMap.get(key).quantity + ingredient.quantity
-                });
-              } else {
-                ingredientsMap.set(key, {
-                  name: ingredient.name,
-                  quantity: ingredient.quantity,
-                  unit: ingredient.unit,
-                  notes: ingredient.notes
-                });
-              }
-            });
-          });
-          
-          // Convert map to array
-          const shoppingListItems = Array.from(ingredientsMap.values());
-          
-          // Import the ingredient categorization utility
-          const { groupIngredientsByCategory } = await import('../utils/ingredient-categories');
-          
-          // Group the ingredients by category
-          const categorizedShoppingList = groupIngredientsByCategory(shoppingListItems);
+          // Process shopping list items
+          const { items: shoppingListItems, categorized: categorizedShoppingList } = await processShoppingList(existingMealPlan);
           
           return {
             success: true,

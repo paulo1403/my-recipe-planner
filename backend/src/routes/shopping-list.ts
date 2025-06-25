@@ -54,43 +54,15 @@ export const shoppingListRoutes = new Elysia({ name: 'shopping-list-routes' })
             };
           }
           
-          // Consolidate ingredients from all meal plans
-          const ingredientsMap = new Map();
-          const activePlanNames: string[] = [];
+          // Collect plan names
+          const activePlanNames: string[] = activeMealPlans.map((plan: any) => plan.name);
           
-          activeMealPlans.forEach((mealPlan: any) => {
-            activePlanNames.push(mealPlan.name);
-            
-            mealPlan.entries.forEach((entry: any) => {
-              entry.recipe.ingredients.forEach((ingredient: any) => {
-                const key = `${ingredient.name}|${ingredient.unit}`;
-                
-                if (ingredientsMap.has(key)) {
-                  ingredientsMap.set(key, {
-                    ...ingredientsMap.get(key),
-                    quantity: ingredientsMap.get(key).quantity + ingredient.quantity
-                  });
-                } else {
-                  ingredientsMap.set(key, {
-                    name: ingredient.name,
-                    quantity: ingredient.quantity,
-                    unit: ingredient.unit,
-                    isChecked: false,
-                    notes: ingredient.notes
-                  });
-                }
-              });
-            });
-          });
+          // Import shopping list processing utility
+          const { processConsolidatedShoppingList } = await import('../utils/shopping-list-utils');
           
-          // Convert map to array
-          const shoppingListItems = Array.from(ingredientsMap.values());
-          
-          // Import the ingredient categorization utility
-          const { groupIngredientsByCategory } = await import('../utils/ingredient-categories');
-          
-          // Group the ingredients by category
-          const categorizedShoppingList = groupIngredientsByCategory(shoppingListItems);
+          // Process shopping list items from all meal plans
+          const { items: shoppingListItems, categorized: categorizedShoppingList } = 
+            await processConsolidatedShoppingList(activeMealPlans);
           
           return {
             success: true,
@@ -157,38 +129,12 @@ export const shoppingListRoutes = new Elysia({ name: 'shopping-list-routes' })
             };
           }
           
-          // Consolidate ingredients
-          const ingredientsMap = new Map();
+          // Import shopping list processing utility
+          const { processShoppingList } = await import('../utils/shopping-list-utils');
           
-          mealPlan.entries.forEach((entry: any) => {
-            entry.recipe.ingredients.forEach((ingredient: any) => {
-              const key = `${ingredient.name}|${ingredient.unit}`;
-              
-              if (ingredientsMap.has(key)) {
-                ingredientsMap.set(key, {
-                  ...ingredientsMap.get(key),
-                  quantity: ingredientsMap.get(key).quantity + ingredient.quantity
-                });
-              } else {
-                ingredientsMap.set(key, {
-                  name: ingredient.name,
-                  quantity: ingredient.quantity,
-                  unit: ingredient.unit,
-                  isChecked: false,
-                  notes: ingredient.notes
-                });
-              }
-            });
-          });
-          
-          // Convert map to array
-          const shoppingListItems = Array.from(ingredientsMap.values());
-          
-          // Import the ingredient categorization utility
-          const { groupIngredientsByCategory } = await import('../utils/ingredient-categories');
-          
-          // Group the ingredients by category
-          const categorizedShoppingList = groupIngredientsByCategory(shoppingListItems);
+          // Process shopping list items
+          const { items: shoppingListItems, categorized: categorizedShoppingList } = 
+            await processShoppingList(mealPlan);
           
           return {
             success: true,
