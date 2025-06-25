@@ -1,73 +1,109 @@
 import React from 'react';
-import Button from './ui/Button';
-import Input from './ui/Input';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuthStore } from '../stores/authStore';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const { login, isLoading, error, clearError } = useAuthStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    if (error) {
+      // Clear error after 5 seconds
+      const timer = setTimeout(() => clearError(), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, clearError]);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt with:', { email, password });
-    // Authentication logic would go here
+    try {
+      await login(email, password);
+      // Redirect to the page they tried to visit or dashboard
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    } catch (err) {
+      // Error is handled by the store
+    }
   };
   
   return (
-    <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Login to Recipe Planner</h2>
-      
-      <form onSubmit={handleSubmit}>
-        <Input
-          label="Email Address"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
-          required
-          className="mb-4"
-        />
+    <Card className="max-w-md mx-auto my-10">
+      <CardHeader>
+        <CardTitle className="text-2xl text-center">Login to Recipe Planner</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
         
-        <Input
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          required
-          className="mb-6"
-        />
-        
-        <div className="flex justify-between mb-6">
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              required
+              disabled={isLoading}
             />
-            <label htmlFor="remember-me" className="ml-2 text-sm text-gray-700">
-              Remember me
-            </label>
           </div>
           
-          <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
-            Forgot password?
-          </a>
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              disabled={isLoading}
+            />
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <input
+                id="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              />
+              <Label htmlFor="remember-me" className="text-sm">
+                Remember me
+              </Label>
+            </div>
+            
+            <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
+              Forgot password?
+            </a>
+          </div>
+          
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Signing in...' : 'Sign in'}
+          </Button>
+        </form>
         
-        <Button type="submit" variant="primary" className="w-full">
-          Sign in
-        </Button>
-      </form>
-      
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          Don't have an account?{' '}
-          <a href="#" className="font-medium text-blue-600 hover:text-blue-700">
-            Sign up
-          </a>
-        </p>
-      </div>
-    </div>
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{' '}
+            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-700">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

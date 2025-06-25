@@ -1,38 +1,47 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './context/AuthContext';
-import TailwindTest from './components/TailwindTest';
-import RecipeCard from './components/RecipeCard';
 import LoginForm from './components/LoginForm';
+import RegisterForm from './components/RegisterForm';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import RecipesPage from './pages/RecipesPage';
 
-// Temporary placeholder components - we'll create these files soon
-const Home = () => (
+// Temporary placeholder components for routes not yet implemented
+const MealPlansPage = () => (
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <h1 className="text-center my-8 text-3xl font-bold text-gray-900">Recipe Planner</h1>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <TailwindTest />
-      <RecipeCard />
-      <TailwindTest />
-    </div>
+    <h1 className="text-3xl font-bold text-gray-900">Meal Plans</h1>
+    <p className="text-gray-600 mt-2">Coming soon...</p>
   </div>
 );
-const Login = () => (
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 className="text-center mb-8 text-3xl font-bold text-gray-900">Welcome Back</h1>
-    <LoginForm />
+
+const ShoppingListPage = () => (
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 className="text-3xl font-bold text-gray-900">Shopping List</h1>
+    <p className="text-gray-600 mt-2">Coming soon...</p>
   </div>
 );
-const Register = () => <div>Register Page</div>;
-const Recipes = () => <div>Recipes Page</div>;
+
 const RecipeDetail = () => <div>Recipe Detail Page</div>;
 const CreateRecipe = () => <div>Create Recipe Page</div>;
 const EditRecipe = () => <div>Edit Recipe Page</div>;
-const MealPlans = () => <div>Meal Plans Page</div>;
 const MealPlanDetail = () => <div>Meal Plan Detail Page</div>;
 const CreateMealPlan = () => <div>Create Meal Plan Page</div>;
 const EditMealPlan = () => <div>Edit Meal Plan Page</div>;
-const ShoppingList = () => <div>Shopping List Page</div>;
 const Profile = () => <div>User Profile Page</div>;
+
+// Public login/register pages
+const LoginPage = () => (
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <LoginForm />
+  </div>
+);
+
+const RegisterPage = () => (
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <RegisterForm />
+  </div>
+);
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -44,68 +53,78 @@ const queryClient = new QueryClient({
   },
 });
 
-// Create router 
+// Create router with protected and public routes
 const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Home />,
-  },
+  // Public routes
   {
     path: '/login',
-    element: <Login />,
+    element: <LoginPage />,
   },
   {
     path: '/register',
-    element: <Register />,
+    element: <RegisterPage />,
   },
+  // Protected routes
   {
-    path: '/recipes',
-    element: <Recipes />,
-  },
-  {
-    path: '/recipes/new',
-    element: <CreateRecipe />,
-  },
-  {
-    path: '/recipes/:id',
-    element: <RecipeDetail />,
-  },
-  {
-    path: '/recipes/:id/edit',
-    element: <EditRecipe />,
-  },
-  {
-    path: '/meal-plans',
-    element: <MealPlans />,
-  },
-  {
-    path: '/meal-plans/new',
-    element: <CreateMealPlan />,
-  },
-  {
-    path: '/meal-plans/:id',
-    element: <MealPlanDetail />,
-  },
-  {
-    path: '/meal-plans/:id/edit',
-    element: <EditMealPlan />,
-  },
-  {
-    path: '/shopping-list',
-    element: <ShoppingList />,
-  },
-  {
-    path: '/profile',
-    element: <Profile />,
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Dashboard />,
+      },
+      {
+        path: 'recipes',
+        element: <RecipesPage />,
+      },
+      {
+        path: 'recipes/new',
+        element: <CreateRecipe />,
+      },
+      {
+        path: 'recipes/:id',
+        element: <RecipeDetail />,
+      },
+      {
+        path: 'recipes/:id/edit',
+        element: <EditRecipe />,
+      },
+      {
+        path: 'meal-plans',
+        element: <MealPlansPage />,
+      },
+      {
+        path: 'meal-plans/new',
+        element: <CreateMealPlan />,
+      },
+      {
+        path: 'meal-plans/:id',
+        element: <MealPlanDetail />,
+      },
+      {
+        path: 'meal-plans/:id/edit',
+        element: <EditMealPlan />,
+      },
+      {
+        path: 'shopping-list',
+        element: <ShoppingListPage />,
+      },
+      {
+        path: 'profile',
+        element: <Profile />,
+      },
+    ],
   },
 ]);
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   );
 }

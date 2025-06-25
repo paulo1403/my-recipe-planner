@@ -1,15 +1,17 @@
 import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const RecipeCard: React.FC = () => {
   return (
-    <div className="bg-white rounded-xl shadow-md max-w-sm mx-auto my-8 overflow-hidden">
+    <Card className="max-w-sm mx-auto my-8 overflow-hidden">
       <div className="md:flex">
         <div className="md:shrink-0">
           <div className="h-48 w-full bg-blue-500 flex items-center justify-center text-white">
             <span className="text-xl font-bold">Recipe Image</span>
           </div>
         </div>
-        <div className="p-8">
+        <CardContent className="p-8">
           <div className="uppercase tracking-wide text-sm text-blue-600 font-semibold">Recipe</div>
           <a href="#" className="block mt-1 text-lg leading-tight font-medium text-gray-900 hover:underline">
             Delicious Pasta Carbonara
@@ -24,12 +26,12 @@ const RecipeCard: React.FC = () => {
             <span className="mr-2">Difficulty:</span>
             <span>Easy</span>
           </div>
-          <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+          <Button className="mt-4">
             View Recipe
-          </button>
-        </div>
+          </Button>
+        </CardContent>
       </div>
-    </div>
+    </Card>
   );
 };
 
