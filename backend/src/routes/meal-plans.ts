@@ -484,8 +484,8 @@ export const mealPlanRoutes = new Elysia({ name: 'meal-plan-routes' })
     )
     
     // 8. Generate shopping list for a meal plan
-    .post('/shopping-list',
-      async ({ body, set, store: { db }, auth }: any) => {
+    .get('/:id/shopping-list',
+      async ({ params, set, store: { db }, auth }: any) => {
         try {
           const authResult = await auth();
           
@@ -494,12 +494,12 @@ export const mealPlanRoutes = new Elysia({ name: 'meal-plan-routes' })
             return authResult;
           }
           
-          const { mealPlanId } = body;
+          const { id } = params;
           
           // Check if the meal plan exists and belongs to the user
           const existingMealPlan = await db.mealPlan.findUnique({
             where: {
-              id: mealPlanId,
+              id,
               userId: authResult.user.userId
             },
             include: {
@@ -547,14 +547,26 @@ export const mealPlanRoutes = new Elysia({ name: 'meal-plan-routes' })
           });
           
           // Convert map to array
-          const shoppingList = Array.from(ingredientsMap.values());
+          const shoppingListItems = Array.from(ingredientsMap.values());
+          
+          // Import the ingredient categorization utility
+          const { groupIngredientsByCategory } = await import('../utils/ingredient-categories');
+          
+          // Group the ingredients by category
+          const categorizedShoppingList = groupIngredientsByCategory(shoppingListItems);
           
           return {
             success: true,
-            mealPlan: existingMealPlan.name,
-            startDate: existingMealPlan.startDate,
-            endDate: existingMealPlan.endDate,
-            shoppingList
+            mealPlan: {
+              id: existingMealPlan.id,
+              name: existingMealPlan.name,
+              startDate: existingMealPlan.startDate,
+              endDate: existingMealPlan.endDate
+            },
+            shoppingList: {
+              items: shoppingListItems,
+              categorized: categorizedShoppingList
+            }
           };
         } catch (error) {
           console.error('Error generating shopping list:', error);
@@ -566,7 +578,6 @@ export const mealPlanRoutes = new Elysia({ name: 'meal-plan-routes' })
         }
       },
       {
-        body: 'generateShoppingList',
         detail: {
           summary: 'Generar lista de compras para un plan de comidas',
           tags: ['Meal Plans']

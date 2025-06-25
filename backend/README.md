@@ -88,7 +88,7 @@ The API documentation is available via Swagger at http://localhost:3000/swagger 
 | DELETE | /meal-plans/:id            | Delete a meal plan           | Yes          |
 | POST   | /meal-plans/:id/entries    | Add recipe to meal plan      | Yes          |
 | DELETE | /meal-plans/:id/entries/:entryId | Remove recipe from meal plan | Yes    |
-| POST   | /meal-plans/shopping-list  | Generate shopping list       | Yes          |
+| GET    | /meal-plans/:id/shopping-list | Generate shopping list for a meal plan | Yes |
 
 ### Shopping List Endpoints
 
@@ -105,6 +105,21 @@ The API documentation is available via Swagger at http://localhost:3000/swagger 
 - **Ingredient**: Components of recipes
 - **MealPlan**: Weekly or custom period meal plans
 - **MealPlanEntry**: Individual recipes scheduled for specific days/meals
+
+## Ingredient Categorization
+
+The shopping list generation provides both a flat list of ingredients and a categorized list. Ingredients are automatically categorized based on their names into the following groups:
+
+- Produce (fruits and vegetables)
+- Meat & Seafood
+- Dairy & Eggs
+- Bakery
+- Pantry (canned goods, grains, pastas, etc.)
+- Frozen Foods
+- Condiments & Spices
+- Beverages
+- Snacks
+- Other
 
 ## Development
 

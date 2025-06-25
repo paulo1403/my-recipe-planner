@@ -84,12 +84,21 @@ export const shoppingListRoutes = new Elysia({ name: 'shopping-list-routes' })
           });
           
           // Convert map to array
-          const shoppingList = Array.from(ingredientsMap.values());
+          const shoppingListItems = Array.from(ingredientsMap.values());
+          
+          // Import the ingredient categorization utility
+          const { groupIngredientsByCategory } = await import('../utils/ingredient-categories');
+          
+          // Group the ingredients by category
+          const categorizedShoppingList = groupIngredientsByCategory(shoppingListItems);
           
           return {
             success: true,
             activePlans: activePlanNames,
-            shoppingList
+            shoppingList: {
+              items: shoppingListItems,
+              categorized: categorizedShoppingList
+            }
           };
         } catch (error) {
           console.error('Error generating shopping list:', error);
@@ -173,14 +182,26 @@ export const shoppingListRoutes = new Elysia({ name: 'shopping-list-routes' })
           });
           
           // Convert map to array
-          const shoppingList = Array.from(ingredientsMap.values());
+          const shoppingListItems = Array.from(ingredientsMap.values());
+          
+          // Import the ingredient categorization utility
+          const { groupIngredientsByCategory } = await import('../utils/ingredient-categories');
+          
+          // Group the ingredients by category
+          const categorizedShoppingList = groupIngredientsByCategory(shoppingListItems);
           
           return {
             success: true,
-            mealPlan: mealPlan.name,
-            startDate: mealPlan.startDate,
-            endDate: mealPlan.endDate,
-            shoppingList
+            mealPlan: {
+              id: mealPlan.id,
+              name: mealPlan.name,
+              startDate: mealPlan.startDate,
+              endDate: mealPlan.endDate
+            },
+            shoppingList: {
+              items: shoppingListItems,
+              categorized: categorizedShoppingList
+            }
           };
         } catch (error) {
           console.error('Error generating shopping list for meal plan:', error);
