@@ -1,10 +1,27 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
+import TailwindTest from './components/TailwindTest';
+import RecipeCard from './components/RecipeCard';
+import LoginForm from './components/LoginForm';
 
 // Temporary placeholder components - we'll create these files soon
-const Home = () => <div>Home Page</div>;
-const Login = () => <div>Login Page</div>;
+const Home = () => (
+  <div className="container">
+    <h1 className="text-center my-8 text-primary-800">Recipe Planner</h1>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <TailwindTest />
+      <RecipeCard />
+      <TailwindTest />
+    </div>
+  </div>
+);
+const Login = () => (
+  <div className="container py-8">
+    <h1 className="text-center mb-8 text-primary-800">Welcome Back</h1>
+    <LoginForm />
+  </div>
+);
 const Register = () => <div>Register Page</div>;
 const Recipes = () => <div>Recipes Page</div>;
 const RecipeDetail = () => <div>Recipe Detail Page</div>;

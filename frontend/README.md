@@ -1,6 +1,6 @@
 # Recipe Planner Frontend
 
-Una aplicación frontend para la planificación de recetas y comidas construida con React, TypeScript, Tailwind CSS y Vite.
+Una aplicación frontend para la planificación de recetas y comidas construida con React, TypeScript, CSS moderno y Vite.
 
 ## Características
 
@@ -16,7 +16,7 @@ Una aplicación frontend para la planificación de recetas y comidas construida 
 - **Build Tool**: [Vite](https://vitejs.dev/)
 - **Router**: [React Router](https://reactrouter.com/)
 - **Estado Global**: [React Query](https://tanstack.com/query)
-- **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
+- **Estilos**: CSS Moderno (Variables CSS, Flexbox, Grid)
 - **Validación**: [Zod](https://zod.dev/)
 - **HTTP Client**: [Axios](https://axios-http.com/)
 
