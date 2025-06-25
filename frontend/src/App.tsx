@@ -4,6 +4,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import PublicLayout from './components/PublicLayout';
 import Dashboard from './pages/Dashboard';
 import RecipesPage from './pages/RecipesPage';
 
@@ -30,17 +31,17 @@ const CreateMealPlan = () => <div>Create Meal Plan Page</div>;
 const EditMealPlan = () => <div>Edit Meal Plan Page</div>;
 const Profile = () => <div>User Profile Page</div>;
 
-// Public login/register pages
+// Public login/register pages with layout
 const LoginPage = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <PublicLayout>
     <LoginForm />
-  </div>
+  </PublicLayout>
 );
 
 const RegisterPage = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <PublicLayout>
     <RegisterForm />
-  </div>
+  </PublicLayout>
 );
 
 // Create React Query client
