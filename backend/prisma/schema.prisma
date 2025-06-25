@@ -1,0 +1,94 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(uuid()) @db.Uuid
+  email       String    @unique
+  password    String // Stored as a hash
+  username    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  recipes     Recipe[]
+  mealPlans   MealPlan[]
+}
+
+model Recipe {
+  id           String      @id @default(uuid()) @db.Uuid
+  userId       String      @db.Uuid
+  user         User        @relation(fields: [userId], references: [id])
+  title        String
+  description  String?
+  instructions String
+  imageUrl     String?
+  originType   RecipeOriginType // ENUM for 'CUSTOM' or 'EXTERNAL'
+  externalId   String?     @unique(map: "Recipe_externalId_key") // Unique if from external API
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  ingredients  Ingredient[]
+  mealPlanEntries MealPlanEntry[]
+
+  @@unique([userId, externalId], map: "User_ExternalRecipe_unique_constraint") // Ensures a user can only save an external recipe once
+}
+
+model Ingredient {
+  id        String   @id @default(uuid()) @db.Uuid
+  recipeId  String   @db.Uuid
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  name      String
+  quantity  Float
+  unit      String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MealPlan {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  entries     MealPlanEntry[]
+}
+
+model MealPlanEntry {
+  id          String    @id @default(uuid()) @db.Uuid
+  mealPlanId  String    @db.Uuid
+  mealPlan    MealPlan  @relation(fields: [mealPlanId], references: [id])
+  recipeId    String    @db.Uuid
+  recipe      Recipe    @relation(fields: [recipeId], references: [id])
+  dayOfWeek   Int       // 1 for Monday, 7 for Sunday
+  mealType    MealType  // ENUM for 'BREAKFAST', 'LUNCH', etc.
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([mealPlanId, dayOfWeek, mealType]) // Ensures only one recipe per meal slot per plan
+}
+
+// Enums para tipos de datos específicos
+enum RecipeOriginType {
+  CUSTOM
+  EXTERNAL
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  OTHER
+}
