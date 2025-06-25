@@ -1,16 +1,27 @@
 import { Elysia, t } from 'elysia';
 import { verify, hash } from 'argon2';
+import { 
+  BadRequestError, 
+  ConflictError, 
+  InternalServerError, 
+  UnauthorizedError 
+} from '../middlewares/error-handler';
+import { validators } from '../middlewares/validation';
 
 export const authRoutes = new Elysia({ name: 'auth-routes' })
   .model({
     signUp: t.Object({
-      email: t.String({ format: 'email' }),
-      password: t.String({ minLength: 8 }),
-      username: t.Optional(t.String()),
+      email: validators.email,
+      password: validators.password,
+      username: t.Optional(t.String({ 
+        minLength: 3,
+        maxLength: 50,
+        error: 'El nombre de usuario debe tener entre 3 y 50 caracteres'
+      })),
     }),
     signIn: t.Object({
-      email: t.String({ format: 'email' }),
-      password: t.String(),
+      email: validators.email,
+      password: t.String({ error: 'La contraseña es requerida' }),
     }),
   })
   .derive({ as: 'global' }, ({}) => {
@@ -22,20 +33,29 @@ export const authRoutes = new Elysia({ name: 'auth-routes' })
         const { email, password, username } = body;
         
         try {
+          // Validar email
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            throw new BadRequestError('El formato del email no es válido');
+          }
+          
+          // Validar contraseña
+          if (password.length < 8) {
+            throw new BadRequestError('La contraseña debe tener al menos 8 caracteres');
+          }
+          
+          // Verificar si el usuario ya existe
           const existingUser = await db.user.findUnique({
             where: { email }
           });
           
           if (existingUser) {
-            set.status = 409;
-            return { 
-              success: false, 
-              message: 'El usuario con este correo electrónico ya existe.' 
-            };
+            throw new ConflictError('El usuario con este correo electrónico ya existe');
           }
           
+          // Hash de la contraseña
           const hashedPassword = await hash(password);
           
+          // Crear usuario
           const newUser = await db.user.create({
             data: {
               email,
@@ -49,6 +69,7 @@ export const authRoutes = new Elysia({ name: 'auth-routes' })
             }
           });
           
+          // Generar JWT
           const token = await jwt.sign({
             userId: newUser.id,
             email: newUser.email,
@@ -63,12 +84,9 @@ export const authRoutes = new Elysia({ name: 'auth-routes' })
             token
           };
         } catch (error) {
+          // El middleware de manejo de errores se encargará de esto
           console.error('Error registering user:', error);
-          set.status = 500;
-          return {
-            success: false,
-            message: 'Error al registrar usuario'
-          };
+          throw error instanceof Error ? error : new InternalServerError('Error al registrar usuario');
         }
       },
       {
@@ -85,28 +103,30 @@ export const authRoutes = new Elysia({ name: 'auth-routes' })
         const { email, password } = body;
         
         try {
+          // Validar datos de entrada
+          if (!email || !password) {
+            throw new BadRequestError('Email y contraseña son obligatorios');
+          }
+          
+          // Buscar usuario
           const user = await db.user.findUnique({
             where: { email }
           });
           
+          // No revelar si el usuario existe o no por seguridad
+          // Solo decir "credenciales inválidas" en ambos casos
           if (!user) {
-            set.status = 401;
-            return {
-              success: false,
-              message: 'Credenciales inválidas'
-            };
+            throw new UnauthorizedError('Credenciales inválidas');
           }
           
+          // Verificar contraseña
           const isPasswordValid = await verify(user.password, password);
           
           if (!isPasswordValid) {
-            set.status = 401;
-            return {
-              success: false,
-              message: 'Credenciales inválidas'
-            };
+            throw new UnauthorizedError('Credenciales inválidas');
           }
           
+          // Generar JWT
           const token = await jwt.sign({
             userId: user.id,
             email: user.email,
@@ -124,12 +144,9 @@ export const authRoutes = new Elysia({ name: 'auth-routes' })
             token
           };
         } catch (error) {
+          // El middleware de manejo de errores se encargará de esto
           console.error('Error logging in:', error);
-          set.status = 500;
-          return {
-            success: false,
-            message: 'Error al iniciar sesión'
-          };
+          throw error instanceof Error ? error : new InternalServerError('Error al iniciar sesión');
         }
       },
       {

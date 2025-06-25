@@ -140,6 +140,56 @@ The shopping list generation provides both a flat list of ingredients and a cate
 bun --watch run src/main.ts
 ```
 
+## Error Handling and Validation
+
+### Global Error Handling
+
+The application uses a centralized error handling system with custom error classes:
+
+- **AppError**: Base error class with status code
+- **BadRequestError (400)**: For invalid input data
+- **UnauthorizedError (401)**: For authentication failures
+- **ForbiddenError (403)**: For permission issues
+- **NotFoundError (404)**: For resources that don't exist
+- **ConflictError (409)**: For data conflicts (e.g., duplicate email)
+- **TooManyRequestsError (429)**: For rate limiting
+- **InternalServerError (500)**: For server-side issues
+
+Errors are automatically captured and formatted with consistent JSON responses:
+
+```json
+{
+  "success": false,
+  "error": "ErrorTypeName",
+  "message": "Human-readable error message",
+  "timestamp": "2025-06-25T12:34:56.789Z"
+}
+```
+
+In development mode, additional context is provided (path, details, stack trace).
+
+### Request Validation
+
+All endpoints have strong validation using TypeBox (similar to Zod):
+
+- **Route-level schemas**: Each endpoint defines schemas for body, params, query
+- **Common validators**: Reusable validators for UUIDs, emails, passwords, etc.
+- **Detailed error messages**: Validation failures return specific field errors
+- **Type safety**: TypeBox ensures runtime validation matches TypeScript types
+
+### Rate Limiting
+
+The API includes rate limiting for public endpoints to prevent abuse:
+
+- **Recipe search**: Limited to 10 requests per minute per IP
+- **Authentication endpoints**: Protected against brute force attempts
+
+### Secure Practices
+
+- Passwords are hashed with Argon2
+- JWT tokens are properly signed and have expiration times
+- Error responses don't leak sensitive information
+
 ## Testing
 
 ```bash

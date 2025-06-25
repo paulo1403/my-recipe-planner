@@ -1,7 +1,11 @@
 import { Elysia, t } from 'elysia';
+import { AppError, BadRequestError, InternalServerError, NotFoundError, UnauthorizedError } from '../middlewares/error-handler';
 
 export const recipeRoutes = new Elysia({ name: 'recipe-routes' })
   .model({
+    recipeSearch: t.Object({
+      q: t.String({ minLength: 2, error: 'El término de búsqueda debe tener al menos 2 caracteres' }),
+    }),
     createRecipe: t.Object({
       title: t.String(),
       description: t.Optional(t.String()),
@@ -36,20 +40,30 @@ export const recipeRoutes = new Elysia({ name: 'recipe-routes' })
   .group('/recipes', (app: any) => app
     // 3.1 Buscar recetas en API externa
     .get('/search', 
-      async ({ query, set, store: { db } }: any) => {
+      async ({ query, set, store: { db }, rateLimit }: any) => {
+        // Limitar a 10 búsquedas por minuto
+        rateLimit({ limit: 10, window: 60, errorMessage: 'Demasiadas búsquedas. Por favor, inténtalo de nuevo en un minuto.' });
         const { q } = query;
         
         if (!q) {
-          set.status = 400;
-          return {
-            success: false,
-            message: 'El parámetro de búsqueda es requerido'
-          };
+          throw new BadRequestError('El parámetro de búsqueda es requerido');
+        }
+        
+        if (typeof q === 'string' && q.length < 2) {
+          throw new BadRequestError('El término de búsqueda debe tener al menos 2 caracteres');
         }
         
         try {
           // Aquí iría la llamada a la API externa (Spoonacular/Edamam)
           // Por ahora simularemos la respuesta
+          // En una implementación real, agregamos manejo de errores para la API externa
+          
+          // const apiResponse = await fetch(`https://api.example.com/recipes?query=${encodeURIComponent(q)}`);
+          // if (!apiResponse.ok) {
+          //   throw new InternalServerError(`Error en API externa: ${apiResponse.statusText}`);
+          // }
+          // const data = await apiResponse.json();
+          
           const searchResults = {
             results: [
               {
@@ -73,14 +87,21 @@ export const recipeRoutes = new Elysia({ name: 'recipe-routes' })
           };
         } catch (error) {
           console.error('Error buscando recetas:', error);
-          set.status = 500;
-          return {
-            success: false,
-            message: 'Error al buscar recetas'
-          };
+          
+          // Usar nuestro manejador de errores centralizado
+          if (error instanceof AppError) {
+            throw error;
+          }
+          
+          throw new InternalServerError('Error al buscar recetas en API externa');
         }
       },
       {
+        query: t.Object({
+          q: t.String({ minLength: 2, error: 'El término de búsqueda debe tener al menos 2 caracteres' }),
+          limit: t.Optional(t.Number({ minimum: 1, maximum: 50, default: 10 })),
+          offset: t.Optional(t.Number({ minimum: 0, default: 0 }))
+        }),
         detail: {
           summary: 'Buscar recetas en API externa',
           tags: ['Recipes']

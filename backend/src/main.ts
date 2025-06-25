@@ -6,12 +6,34 @@ import { swagger } from '@elysiajs/swagger';
 
 import { PrismaClient } from '@prisma/client';
 
+// Importar los middlewares de gestión de errores y validación
+import { errorHandler, UnauthorizedError } from './middlewares/error-handler';
+import { validationMiddleware } from './middlewares/validation';
+import { rateLimiterMiddleware } from './middlewares/rate-limiter';
+
 export const prisma = new PrismaClient();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key';
 
 const app = new Elysia()
-  .use(swagger())
+  .use(errorHandler)           // Aplicar el manejador de errores globalmente
+  .use(validationMiddleware)   // Aplicar el middleware de validación
+  .use(rateLimiterMiddleware)  // Aplicar el limitador de tasa
+  .use(swagger({
+    documentation: {
+      info: {
+        title: 'API de Recipe Planner',
+        version: '1.0.0',
+        description: 'API para la aplicación de planificación de recetas y comidas'
+      },
+      tags: [
+        { name: 'Auth', description: 'Endpoints de autenticación' },
+        { name: 'Recipes', description: 'Endpoints de recetas' },
+        { name: 'Meal Plans', description: 'Endpoints de planes de comida' },
+        { name: 'Shopping List', description: 'Endpoints de lista de compras' }
+      ]
+    }
+  }))
   .use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -31,22 +53,28 @@ const app = new Elysia()
         try {
           const authorization = request.headers.get('authorization');
           if (!authorization) {
-            set.status = 401;
-            return { isAuthorized: false, error: 'No token provided' };
+            throw new UnauthorizedError('Token no proporcionado');
           }
 
           const token = authorization.split(' ')[1] || authorization;
           const decoded = await jwt.verify(token);
 
           if (!decoded) {
-            set.status = 401;
-            return { isAuthorized: false, error: 'Invalid token' };
+            throw new UnauthorizedError('Token inválido');
+          }
+
+          // Validar que el token contiene los datos necesarios
+          if (!decoded.userId || !decoded.email) {
+            throw new UnauthorizedError('Token inválido: datos de usuario incompletos');
           }
 
           return { isAuthorized: true, user: decoded };
         } catch (error) {
-          set.status = 401;
-          return { isAuthorized: false, error: 'Authentication failed' };
+          // Usar nuestro propio error personalizado
+          if (error instanceof UnauthorizedError) {
+            throw error;
+          }
+          throw new UnauthorizedError('Fallo en la autenticación');
         }
       }
     };
