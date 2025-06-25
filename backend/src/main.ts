@@ -52,11 +52,17 @@ const app = new Elysia()
     };
   });
 
-// Import our auth routes
+// Import our routes
 import { authRoutes } from './routes/auth';
+import { recipeRoutes } from './routes/recipes';
+import { mealPlanRoutes } from './routes/meal-plans';
+import { shoppingListRoutes } from './routes/shopping-list';
 
-// Apply the auth routes to our app
-app.use(authRoutes);
+// Apply the routes to our app
+app.use(authRoutes)
+   .use(recipeRoutes)
+   .use(mealPlanRoutes)
+   .use(shoppingListRoutes);
 
 // Basic welcome route
 app.get('/', () => 'Hola desde el backend de Recipe Planner!');
