@@ -19,35 +19,34 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   type = 'button'
 }) => {
-  // Construir nombre de clase
-  const buttonClasses = ['btn'];
+  // Base classes
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
-  // Añadir clase de variante
-  if (variant) {
-    buttonClasses.push(`btn-${variant}`);
-  }
+  // Variant classes
+  const variantClasses = {
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
+    secondary: 'bg-purple-600 hover:bg-purple-700 text-white focus:ring-purple-500',
+    outline: 'border-2 border-gray-300 hover:bg-gray-100 text-gray-700 focus:ring-gray-500'
+  };
   
-  // Añadir clase de tamaño
-  if (size === 'sm') {
-    buttonClasses.push('text-sm');
-  } else if (size === 'lg') {
-    buttonClasses.push('text-lg');
-  }
+  // Size classes
+  const sizeClasses = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg'
+  };
   
-  // Añadir clase para botón deshabilitado
-  if (disabled) {
-    buttonClasses.push('opacity-50 cursor-not-allowed');
-  }
-  
-  // Añadir clases personalizadas
-  if (className) {
-    buttonClasses.push(className);
-  }
-  
+  const classes = [
+    baseClasses,
+    variantClasses[variant],
+    sizeClasses[size],
+    className
+  ].filter(Boolean).join(' ');
+
   return (
     <button
       type={type}
-      className={buttonClasses.join(' ')}
+      className={classes}
       onClick={onClick}
       disabled={disabled}
     >

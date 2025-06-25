@@ -14,7 +14,7 @@ const LoginForm: React.FC = () => {
   
   return (
     <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold text-center text-primary-800 mb-6">Login to Recipe Planner</h2>
+      <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Login to Recipe Planner</h2>
       
       <form onSubmit={handleSubmit}>
         <Input
@@ -42,13 +42,14 @@ const LoginForm: React.FC = () => {
             <input
               id="remember-me"
               type="checkbox"
+              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
-            <label htmlFor="remember-me" className="ml-2 text-sm">
+            <label htmlFor="remember-me" className="ml-2 text-sm text-gray-700">
               Remember me
             </label>
           </div>
           
-          <a href="#" className="text-sm">
+          <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
             Forgot password?
           </a>
         </div>
@@ -59,9 +60,9 @@ const LoginForm: React.FC = () => {
       </form>
       
       <div className="mt-6 text-center">
-        <p className="text-sm">
+        <p className="text-sm text-gray-600">
           Don't have an account?{' '}
-          <a href="#" className="font-medium">
+          <a href="#" className="font-medium text-blue-600 hover:text-blue-700">
             Sign up
           </a>
         </p>

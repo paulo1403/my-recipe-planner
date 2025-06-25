@@ -7,9 +7,9 @@ import LoginForm from './components/LoginForm';
 
 // Temporary placeholder components - we'll create these files soon
 const Home = () => (
-  <div className="container">
-    <h1 className="text-center my-8 text-primary-800">Recipe Planner</h1>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 className="text-center my-8 text-3xl font-bold text-gray-900">Recipe Planner</h1>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <TailwindTest />
       <RecipeCard />
       <TailwindTest />
@@ -17,8 +17,8 @@ const Home = () => (
   </div>
 );
 const Login = () => (
-  <div className="container py-8">
-    <h1 className="text-center mb-8 text-primary-800">Welcome Back</h1>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 className="text-center mb-8 text-3xl font-bold text-gray-900">Welcome Back</h1>
     <LoginForm />
   </div>
 );
